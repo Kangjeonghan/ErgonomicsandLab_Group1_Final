@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>6가지 로딩 패턴 동시 비교 데모</title>
+  <style>
+    :root {
+      --bg: #f5f6ff;
+      --card-bg: #ffffff;
+      --accent: #5b6cff;
+      --accent-soft: #e0e4ff;
+      --text-main: #222;
+      --text-sub: #666;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(circle at top, #eef0ff 0, #f7f8ff 40%, #ffffff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: var(--text-main);
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1200px;
+      background: #ffffffcc;
+      box-shadow: 0 18px 45px rgba(30, 41, 106, 0.12);
+      border-radius: 26px;
+      padding: 32px 36px 40px;
+      backdrop-filter: blur(12px);
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #1f2455;
+      margin-bottom: 4px;
+    }
+
+    .title h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2e3a8c;
+      margin-bottom: 4px;
+    }
+
+    .title p {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    .grid {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px 18px;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+      border: 1px solid #ecefff;
+    }
+
+    .cond-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    .cond-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-bottom: 10px;
+    }
+
+    .bar-outer {
+      position: relative;
+      height: 12px;
+      background: var(--accent-soft);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    /* 길이 조작 */
+    .bar-outer.short {
+      width: 55%;
+    }
+
+    .bar-outer.long {
+      width: 90%;
+    }
+
+    .bar-inner {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #5b6cff, #8d7bff);
+      border-radius: inherit;
+      transition: width 0.08s linear;
+    }
+
+    .bar-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .footer-text {
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-sub);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">
+      <h1>25-2 인간공학과실습 1조</h1>
+      <h2>6가지 로딩 패턴 동시 비교 데모</h2>
+      <p>각 조건은 동일한 실제 시간(10초) 동안 서로 다른 속도 패턴과 진행률 바 길이를 보여줍니다.</p>
+    </div>
+
+    <div class="grid" id="grid">
+      <!-- 카드들: JS에서 채워넣어도 되지만 여기선 정적으로 작성 -->
+      <div class="card" data-condition="Baseline+Short" data-pattern="baseline" data-length="short">
+        <div class="cond-label">Baseline + Short</div>
+        <div class="cond-sub">일정 속도 · 짧은 진행률 바</div>
+        <div class="bar-outer short">
+          <div class="bar-inner"></div>
+        </div>
+        <div class="bar-info">
+          <span>0%</span>
+          <span>기본 패턴</span>
+        </div>
+      </div>
+
+      <div class="card" data-condition="Baseline+Long" data-pattern="baseline" data-length="long">
+        <div class="cond-label">Baseline + Long</div>
+        <div class="cond-sub">일정 속도 · 긴 진행률 바</div>
+        <div class="bar-outer long">
+          <div class="bar-inner"></div>
+        </div>
+        <div class="bar-info">
+          <span>0%</span>
+          <span>기본 패턴</span>
+        </div>
+      </div>
+
+      <div class="card" data-condition="Front-loaded+Short" data-pattern="front" data-length="short">
+        <div class="cond-label">Front-loaded + Short</div>
+        <div class="cond-sub">초반 빠름 · 짧은 진행률 바</div>
+        <div class="bar-outer short">
+          <div class="bar-inner"></div>
+        </div>
+        <div class="bar-info">
+          <span>0%</span>
+          <span>초반 빠름</span>
+        </div>
+      </div>
+
+      <div class="card" data-condition="Front-loaded+Long" data-pattern="front" data-length="long">
+        <div class="cond-label">Front-loaded + Long</div>
+        <div class="cond-sub">초반 빠름 · 긴 진행률 바</div>
+        <div class="bar-outer long">
+          <div class="bar-inner"></div>
+        </div>
+        <div class="bar-info">
+          <span>0%</span>
+          <span>초반 빠름</span>
+        </div>
+      </div>
+
+      <div class="card" data-condition="Back-loaded+Short" data-pattern="back" data-length="short">
+        <div class="cond-label">Back-loaded + Short</div>
+        <div class="cond-sub">초반 느림 · 짧은 진행률 바</div>
+        <div class="bar-outer short">
+          <div class="bar-inner"></div>
+        </div>
+        <div class="bar-info">
+          <span>0%</span>
+          <span>후반 빠름</span>
+        </div>
+      </div>
+
+      <div class="card" data-condition="Back-loaded+Long" data-pattern="back" data-length="long">
+        <div class="cond-label">Back-loaded + Long</div>
+        <div class="cond-sub">초반 느림 · 긴 진행률 바</div>
+        <div class="bar-outer long">
+          <div class="bar-inner"></div>
+        </div>
+        <div class="bar-info">
+          <span>0%</span>
+          <span>후반 빠름</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-text">
+      페이지가 열리면 6가지 조건이 동시에 10초 동안 재생됩니다.
+    </div>
+  </div>
+
+  <script>
+    const DURATION = 10000; // 10초
+
+    function getRatio(t, pattern) {
+      // t: 경과 시간(ms) 0~10000
+      if (t <= 0) return 0;
+      if (t >= DURATION) return 1;
+
+      if (pattern === "baseline") {
+        // 0~10초 선형
+        return t / DURATION;
+      }
+
+      if (pattern === "front") {
+        // 앞 3초에 70%, 나머지 7초에 30%
+        if (t <= 3000) {
+          return 0.7 * (t / 3000);
+        } else {
+          const remain = t - 3000;
+          return 0.7 + 0.3 * (remain / 7000);
+        }
+      }
+
+      if (pattern === "back") {
+        // 처음 7초에 30%, 마지막 3초에 70%
+        if (t <= 7000) {
+          return 0.3 * (t / 7000);
+        } else {
+          const remain = t - 7000;
+          return 0.3 + 0.7 * (remain / 3000);
+        }
+      }
+
+      return t / DURATION;
+    }
+
+    function startAll() {
+      const cards = document.querySelectorAll(".card");
+      const start = performance.now();
+
+      function tick(now) {
+        const elapsed = now - start;
+        cards.forEach(card => {
+          const pattern = card.dataset.pattern;
+          const barInner = card.querySelector(".bar-inner");
+          const percentLabel = card.querySelector(".bar-info span:first-child");
+
+          const ratio = getRatio(elapsed, pattern);
+          const pct = Math.round(ratio * 100);
+
+          barInner.style.width = pct + "%";
+          percentLabel.textContent = pct + "%";
+        });
+
+        if (elapsed < DURATION) {
+          requestAnimationFrame(tick);
+        } else {
+          // 마지막 프레임 정리
+          cards.forEach(card => {
+            const barInner = card.querySelector(".bar-inner");
+            const percentLabel = card.querySelector(".bar-info span:first-child");
+            barInner.style.width = "100%";
+            percentLabel.textContent = "100%";
+          });
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    window.addEventListener("load", startAll);
+  </script>
+</body>
+</html>
